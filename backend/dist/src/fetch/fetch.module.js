@@ -6,21 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SourcesModule = void 0;
+exports.FetchModule = void 0;
 const common_1 = require("@nestjs/common");
-const sources_service_1 = require("./sources.service");
-const sources_controller_1 = require("./sources.controller");
-const fetch_service_1 = require("../fetch/fetch.service");
-const fetch_controller_1 = require("../fetch/fetch.controller");
+const fetch_service_1 = require("./fetch.service");
+const fetch_controller_1 = require("./fetch.controller");
 const prisma_service_1 = require("../prisma/prisma.service");
-let SourcesModule = class SourcesModule {
+let FetchModule = class FetchModule {
 };
-exports.SourcesModule = SourcesModule;
-exports.SourcesModule = SourcesModule = __decorate([
+exports.FetchModule = FetchModule;
+exports.FetchModule = FetchModule = __decorate([
     (0, common_1.Module)({
-        controllers: [sources_controller_1.SourcesController, fetch_controller_1.FetchController],
-        providers: [sources_service_1.SourcesService, fetch_service_1.FetchService, prisma_service_1.PrismaService],
-        exports: [sources_service_1.SourcesService, fetch_service_1.FetchService],
+        controllers: [fetch_controller_1.FetchController],
+        providers: [fetch_service_1.FetchService, prisma_service_1.PrismaService],
+        exports: [fetch_service_1.FetchService],
     })
-], SourcesModule);
-//# sourceMappingURL=sources.module.js.map
+], FetchModule);
+//# sourceMappingURL=fetch.module.js.map

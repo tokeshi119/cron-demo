@@ -1,6 +1,12 @@
 'use client';
 
-import { useSources, useCreateSource, useDeleteSource, useUpdateSource } from '@/src/hooks/useSources';
+import {
+  useSources,
+  useCreateSource,
+  useDeleteSource,
+  useUpdateSource,
+  useFetchSource,
+} from '@/src/hooks/useSources';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -9,12 +15,20 @@ export default function SourcesPage() {
   const createSource = useCreateSource();
   const deleteSource = useDeleteSource();
   const updateSource = useUpdateSource();
+  const fetchSource = useFetchSource();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     url: '',
     name: '',
     enabled: true,
   });
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const [fetchingSourceId, setFetchingSourceId] = useState<string | null>(
+    null,
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +59,33 @@ export default function SourcesPage() {
       });
     } catch (error) {
       console.error('ソースの更新に失敗しました:', error);
+    }
+  };
+
+  const handleFetch = async (id: string, name: string) => {
+    setFetchingSourceId(id);
+    setNotification(null);
+    try {
+      const result = await fetchSource.mutateAsync(id);
+      setNotification({
+        type: 'success',
+        message: `${name}: ${result.message} (${result.articleCount}件の記事を取得)`,
+      });
+      // 3秒後に通知を自動的に非表示
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'RSS取得に失敗しました';
+      setNotification({
+        type: 'error',
+        message: `${name}: ${errorMessage}`,
+      });
+      // 5秒後に通知を自動的に非表示
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setFetchingSourceId(null);
     }
   };
 
@@ -95,6 +136,26 @@ export default function SourcesPage() {
             </button>
           </div>
         </div>
+
+        {notification && (
+          <div
+            className={`mb-4 p-4 rounded-lg ${
+              notification.type === 'success'
+                ? 'bg-green-50 border border-green-200'
+                : 'bg-red-50 border border-red-200'
+            }`}
+          >
+            <p
+              className={
+                notification.type === 'success'
+                  ? 'text-green-800'
+                  : 'text-red-800'
+              }
+            >
+              {notification.message}
+            </p>
+          </div>
+        )}
 
         {showForm && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
@@ -155,7 +216,8 @@ export default function SourcesPage() {
         )}
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -208,7 +270,22 @@ export default function SourcesPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(source.createdAt).toLocaleString('ja-JP')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    <button
+                      onClick={() => handleFetch(source.id, source.name)}
+                      disabled={
+                        fetchingSourceId === source.id || !source.enabled
+                      }
+                      className={`px-3 py-1 rounded text-sm font-medium ${
+                        source.enabled
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      {fetchingSourceId === source.id
+                        ? '取得中...'
+                        : '取得'}
+                    </button>
                     <button
                       onClick={() => handleDelete(source.id)}
                       className="text-red-600 hover:text-red-900"
@@ -220,6 +297,7 @@ export default function SourcesPage() {
               ))}
             </tbody>
           </table>
+          </div>
           {sources?.length === 0 && (
             <div className="p-8 text-center text-gray-500">
               ソースが登録されていません

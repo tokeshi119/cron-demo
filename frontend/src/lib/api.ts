@@ -110,4 +110,23 @@ export const articlesApi = {
   },
 };
 
+// Fetch関連の型定義
+export interface FetchResult {
+  success: boolean;
+  articleCount: number;
+  duration: number;
+  message: string;
+}
+
+// Fetch API関数
+export const fetchApi = {
+  // RSSフィードの手動取得
+  fetchSource: async (sourceId: string): Promise<FetchResult> => {
+    const response = await apiClient.post<FetchResult>(
+      `/sources/${sourceId}/fetch`,
+    );
+    return response.data;
+  },
+};
+
 export default apiClient;

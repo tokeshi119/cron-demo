@@ -1,5 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { sourcesApi, type Source, type CreateSourceDto, type UpdateSourceDto } from '@/src/lib/api';
+import {
+  sourcesApi,
+  fetchApi,
+  type Source,
+  type CreateSourceDto,
+  type UpdateSourceDto,
+  type FetchResult,
+} from '@/src/lib/api';
 
 export function useSources() {
   return useQuery({
@@ -47,6 +54,18 @@ export function useDeleteSource() {
     mutationFn: (id: string) => sourcesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sources'] });
+    },
+  });
+}
+
+export function useFetchSource() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sourceId: string) => fetchApi.fetchSource(sourceId),
+    onSuccess: () => {
+      // 記事一覧も更新する
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     },
   });
 }
