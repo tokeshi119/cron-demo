@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// RSSフィードソース
+model Source {
+  id        String   @id @default(uuid())
+  url       String   @unique
+  name      String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // リレーション
+  articles  Article[]
+  fetchJobs FetchJob[]
+
+  @@index([enabled])
+  @@map("sources")
+}
+
+// 記事
+model Article {
+  id          String   @id @default(uuid())
+  sourceId    String
+  url         String   @unique
+  title       String
+  description String?  @db.Text
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // リレーション
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId])
+  @@index([publishedAt])
+  @@map("articles")
+}
+
+// フィード取得ジョブ履歴
+model FetchJob {
+  id          String   @id @default(uuid())
+  sourceId    String
+  status      String   // 'success' | 'failed'
+  error       String?  @db.Text
+  duration    Int?     // ミリ秒
+  articleCount Int?    @default(0)
+  createdAt   DateTime @default(now())
+
+  // リレーション
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId])
+  @@index([createdAt])
+  @@index([status])
+  @@map("fetch_jobs")
+}
+
+// Outboxパターン用テーブル
+model Outbox {
+  id          String   @id @default(uuid())
+  type        String   // タスクタイプ（例: 'article_processing'）
+  payload     Json     // タスクのペイロード
+  status      String   @default("pending") // 'pending' | 'processing' | 'done' | 'failed'
+  retryCount  Int      @default(0)
+  error       String?  @db.Text
+  processedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([status])
+  @@map("outbox")
+}
