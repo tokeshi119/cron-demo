@@ -1,0 +1,232 @@
+'use client';
+
+import { useSources, useCreateSource, useDeleteSource, useUpdateSource } from '@/src/hooks/useSources';
+import { useState } from 'react';
+import Link from 'next/link';
+
+export default function SourcesPage() {
+  const { data: sources, isLoading, error } = useSources();
+  const createSource = useCreateSource();
+  const deleteSource = useDeleteSource();
+  const updateSource = useUpdateSource();
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    url: '',
+    name: '',
+    enabled: true,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createSource.mutateAsync(formData);
+      setFormData({ url: '', name: '', enabled: true });
+      setShowForm(false);
+    } catch (error) {
+      console.error('ソースの作成に失敗しました:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('このソースを削除しますか？')) {
+      try {
+        await deleteSource.mutateAsync(id);
+      } catch (error) {
+        console.error('ソースの削除に失敗しました:', error);
+      }
+    }
+  };
+
+  const handleToggleEnabled = async (id: string, currentEnabled: boolean) => {
+    try {
+      await updateSource.mutateAsync({
+        id,
+        data: { enabled: !currentEnabled },
+      });
+    } catch (error) {
+      console.error('ソースの更新に失敗しました:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen p-8">
+        <div className="max-w-7xl mx-auto">
+          <p>読み込み中...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-800 font-bold mb-2">エラーが発生しました</p>
+            <p className="text-red-600 text-sm">
+              {error instanceof Error
+                ? error.message
+                : 'ソースの取得に失敗しました。バックエンドサーバーが起動しているか確認してください。'}
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">ソース管理</h1>
+          <div className="space-x-4">
+            <Link
+              href="/"
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              ホーム
+            </Link>
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              {showForm ? 'キャンセル' : '新規追加'}
+            </button>
+          </div>
+        </div>
+
+        {showForm && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4">新しいソースを追加</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block mb-2">
+                  名前
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label htmlFor="url" className="block mb-2">
+                  RSSフィードURL
+                </label>
+                <input
+                  type="url"
+                  id="url"
+                  value={formData.url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url: e.target.value })
+                  }
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.enabled}
+                    onChange={(e) =>
+                      setFormData({ ...formData, enabled: e.target.checked })
+                    }
+                    className="mr-2"
+                  />
+                  有効
+                </label>
+              </div>
+              <button
+                type="submit"
+                disabled={createSource.isPending}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                {createSource.isPending ? '作成中...' : '作成'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  名前
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  URL
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  状態
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  作成日時
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {sources?.map((source) => (
+                <tr key={source.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {source.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {source.url}
+                    </a>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() =>
+                        handleToggleEnabled(source.id, source.enabled)
+                      }
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        source.enabled
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {source.enabled ? '有効' : '無効'}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(source.createdAt).toLocaleString('ja-JP')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleDelete(source.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      削除
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {sources?.length === 0 && (
+            <div className="p-8 text-center text-gray-500">
+              ソースが登録されていません
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}

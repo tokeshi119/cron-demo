@@ -36,10 +36,13 @@ async function bootstrap() {
 
   // CORS設定
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3003',
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3001);
+  const port = process.env.PORT ?? 3002;
+  await app.listen(port);
+  console.log(`🚀 バックエンドサーバーが起動しました: http://localhost:${port}`);
+  console.log(`📚 Swagger UI: http://localhost:${port}/api`);
 }
 bootstrap();

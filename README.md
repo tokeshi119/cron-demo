@@ -87,7 +87,7 @@ npm run dev
 - `GET /jobs` - ジョブ履歴
 - `GET /outbox` - Outbox一覧
 
-詳細は Swagger UI (`http://localhost:3000/api`) を参照してください。
+詳細は Swagger UI (`http://localhost:3002/api`) を参照してください。
 
 ## プロジェクト構造
 

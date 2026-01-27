@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { HealthModule } from './health/health.module';
 import { SourcesModule } from './sources/sources.module';
+import { ArticlesModule } from './articles/articles.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import configuration from './config/configuration';
 
@@ -17,6 +18,7 @@ import configuration from './config/configuration';
     }),
     HealthModule,
     SourcesModule,
+    ArticlesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
