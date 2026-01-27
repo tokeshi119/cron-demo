@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { HealthModule } from './health/health.module';
+import { SourcesModule } from './sources/sources.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import configuration from './config/configuration';
 
@@ -14,6 +15,7 @@ import configuration from './config/configuration';
       load: [configuration],
     }),
     HealthModule,
+    SourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

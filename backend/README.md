@@ -21,78 +21,116 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 概要
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+RSS記事取得システムのバックエンドAPIです。NestJSフレームワークを使用して構築されています。
 
-## Project setup
+## プロジェクトセットアップ
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## コンパイルと実行
 
 ```bash
-# development
+# 開発モード
 $ npm run start
 
-# watch mode
+# ウォッチモード（ファイル変更を自動検知）
 $ npm run start:dev
 
-# production mode
+# 本番モード
 $ npm run start:prod
 ```
 
-## Run tests
+## テスト実行
 
 ```bash
-# unit tests
+# ユニットテスト
 $ npm run test
 
-# e2e tests
+# E2Eテスト
 $ npm run test:e2e
 
-# test coverage
+# テストカバレッジ
 $ npm run test:cov
 ```
 
-## Deployment
+## 動作確認
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### ヘルスチェックエンドポイント (`/healthz`)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+アプリケーションが正常に起動しているか確認します。
+
+**ブラウザでの確認:**
+```
+http://localhost:3000/healthz
+```
+
+**curlコマンドでの確認:**
+```bash
+curl http://localhost:3000/healthz
+```
+
+正常な場合、以下のようなJSONレスポンスが返ります:
+```json
+{
+  "status": "ok",
+  "database": "connected"
+}
+```
+
+### Swagger UI
+
+APIの仕様を確認・テストできます。
+
+**ブラウザでの確認:**
+```
+http://localhost:3000/api
+```
+
+ブラウザで上記URLにアクセスすると、Swagger UIが表示され、以下の操作が可能です:
+- 利用可能なAPIエンドポイントの一覧確認
+- 各エンドポイントの詳細仕様（リクエスト/レスポンス）の確認
+- エンドポイントの直接実行とテスト
+
+## デプロイ
+
+本番環境にデプロイする準備ができたら、効率的に実行するための重要なステップがあります。詳細については、[デプロイメントドキュメント](https://docs.nestjs.com/deployment)を参照してください。
+
+NestJSアプリケーションをデプロイするクラウドベースのプラットフォームをお探しの場合は、AWS上でNestJSアプリケーションをデプロイする公式プラットフォームである[Mau](https://mau.nestjs.com)を確認してください。Mauを使用すると、わずか数ステップでデプロイが簡単かつ迅速に行えます:
 
 ```bash
 $ npm install -g @nestjs/mau
 $ mau deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Mauを使用すると、数クリックでアプリケーションをデプロイでき、インフラの管理ではなく機能の構築に集中できます。
 
-## Resources
+## リソース
 
-Check out a few resources that may come in handy when working with NestJS:
+NestJSで作業する際に役立つリソースをいくつか紹介します:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- [NestJS Documentation](https://docs.nestjs.com)にアクセスして、フレームワークの詳細を学びましょう。
+- 質問やサポートが必要な場合は、[Discord channel](https://discord.gg/G7Qnnhy)にアクセスしてください。
+- より深く学び、実践的な経験を得るには、公式の動画[コース](https://courses.nestjs.com/)を確認してください。
+- [NestJS Mau](https://mau.nestjs.com)の助けを借りて、数クリックでAWSにアプリケーションをデプロイできます。
+- [NestJS Devtools](https://devtools.nestjs.com)を使用して、アプリケーショングラフを可視化し、NestJSアプリケーションとリアルタイムで対話できます。
+- プロジェクトのヘルプが必要ですか（パートタイムからフルタイムまで）？公式の[エンタープライズサポート](https://enterprise.nestjs.com)を確認してください。
+- 最新情報を入手するには、[X](https://x.com/nestframework)と[LinkedIn](https://linkedin.com/company/nestjs)でフォローしてください。
+- 仕事を探している、または仕事を提供したい場合は、公式の[Jobs board](https://jobs.nestjs.com)を確認してください。
 
-## Support
+## サポート
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+NestはMITライセンスのオープンソースプロジェクトです。スポンサーと素晴らしい支援者のサポートにより成長しています。参加したい場合は、[こちら](https://docs.nestjs.com/support)で詳細を確認してください。
 
-## Stay in touch
+## 連絡先
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
+- 作者 - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- ウェブサイト - [https://nestjs.com](https://nestjs.com/)
 - Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+## ライセンス
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Nestは[MITライセンス](https://github.com/nestjs/nest/blob/master/LICENSE)の下で公開されています。
