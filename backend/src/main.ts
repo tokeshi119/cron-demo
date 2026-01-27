@@ -4,8 +4,24 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { JsonLogger } from './common/logger.service';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { execSync } from 'child_process';
 
 async function bootstrap() {
+  // 本番環境でマイグレーションを自動実行
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      console.log('🔄 Prismaマイグレーションを実行中...');
+      execSync('npx prisma migrate deploy', {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      });
+      console.log('✅ マイグレーションが完了しました');
+    } catch (error) {
+      console.error('❌ マイグレーションエラー:', error);
+      // エラーが発生してもアプリケーションは起動を続ける
+    }
+  }
+
   const app = await NestFactory.create(AppModule, {
     logger: new JsonLogger(),
   });
