@@ -19,6 +19,7 @@ let HttpExceptionFilter = class HttpExceptionFilter {
         const message = exception instanceof common_1.HttpException
             ? exception.getResponse()
             : 'Internal server error';
+        const requestId = request.headers['x-request-id'];
         const errorResponse = {
             statusCode: status,
             timestamp: new Date().toISOString(),
@@ -27,6 +28,7 @@ let HttpExceptionFilter = class HttpExceptionFilter {
             error: typeof message === 'string'
                 ? message
                 : message.message || 'Unknown error',
+            ...(requestId && { requestId }),
             ...(typeof message === 'object' && 'message' in message
                 ? { details: message }
                 : {}),

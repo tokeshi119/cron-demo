@@ -57,11 +57,15 @@ export class JsonLogger implements LoggerService {
   }
 
   private writeLog(level: LogLevel, message: any, context?: string, extra?: Record<string, any>) {
+    // リクエストIDを取得（実行コンテキストから）
+    const requestId = (global as any).requestId || undefined;
+
     const logEntry = {
       timestamp: new Date().toISOString(),
       level: level.toUpperCase(),
       context: context || 'Application',
       message: typeof message === 'string' ? message : JSON.stringify(message),
+      ...(requestId && { requestId }),
       ...(extra && Object.keys(extra).length > 0 ? extra : {}),
     };
 

@@ -24,6 +24,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal server error';
 
+    // リクエストIDを取得
+    const requestId = request.headers['x-request-id'] as string;
+
     const errorResponse = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -33,6 +36,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         typeof message === 'string'
           ? message
           : (message as { message?: string }).message || 'Unknown error',
+      ...(requestId && { requestId }),
       ...(typeof message === 'object' && 'message' in message
         ? { details: message }
         : {}),

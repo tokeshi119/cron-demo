@@ -6,23 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RequestIdMiddleware = void 0;
+exports.CronModule = void 0;
 const common_1 = require("@nestjs/common");
-const uuid_1 = require("uuid");
-let RequestIdMiddleware = class RequestIdMiddleware {
-    use(req, res, next) {
-        const requestId = req.headers['x-request-id'] || (0, uuid_1.v4)();
-        req.headers['x-request-id'] = requestId;
-        res.setHeader('X-Request-ID', requestId);
-        global.requestId = requestId;
-        res.on('finish', () => {
-            delete global.requestId;
-        });
-        next();
-    }
+const schedule_1 = require("@nestjs/schedule");
+const cron_service_1 = require("./cron.service");
+const fetch_module_1 = require("../fetch/fetch.module");
+const prisma_service_1 = require("../prisma/prisma.service");
+let CronModule = class CronModule {
 };
-exports.RequestIdMiddleware = RequestIdMiddleware;
-exports.RequestIdMiddleware = RequestIdMiddleware = __decorate([
-    (0, common_1.Injectable)()
-], RequestIdMiddleware);
-//# sourceMappingURL=request-id.middleware.js.map
+exports.CronModule = CronModule;
+exports.CronModule = CronModule = __decorate([
+    (0, common_1.Module)({
+        imports: [schedule_1.ScheduleModule.forRoot(), fetch_module_1.FetchModule],
+        providers: [cron_service_1.CronService, prisma_service_1.PrismaService],
+    })
+], CronModule);
+//# sourceMappingURL=cron.module.js.map

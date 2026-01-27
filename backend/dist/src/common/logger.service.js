@@ -50,11 +50,13 @@ class JsonLogger {
         this.writeLog('verbose', message, context);
     }
     writeLog(level, message, context, extra) {
+        const requestId = global.requestId || undefined;
         const logEntry = {
             timestamp: new Date().toISOString(),
             level: level.toUpperCase(),
             context: context || 'Application',
             message: typeof message === 'string' ? message : JSON.stringify(message),
+            ...(requestId && { requestId }),
             ...(extra && Object.keys(extra).length > 0 ? extra : {}),
         };
         console.log(JSON.stringify(logEntry));

@@ -6,23 +6,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RequestIdMiddleware = void 0;
+exports.JobsModule = void 0;
 const common_1 = require("@nestjs/common");
-const uuid_1 = require("uuid");
-let RequestIdMiddleware = class RequestIdMiddleware {
-    use(req, res, next) {
-        const requestId = req.headers['x-request-id'] || (0, uuid_1.v4)();
-        req.headers['x-request-id'] = requestId;
-        res.setHeader('X-Request-ID', requestId);
-        global.requestId = requestId;
-        res.on('finish', () => {
-            delete global.requestId;
-        });
-        next();
-    }
+const jobs_controller_1 = require("./jobs.controller");
+const jobs_service_1 = require("./jobs.service");
+const prisma_service_1 = require("../prisma/prisma.service");
+const fetch_module_1 = require("../fetch/fetch.module");
+let JobsModule = class JobsModule {
 };
-exports.RequestIdMiddleware = RequestIdMiddleware;
-exports.RequestIdMiddleware = RequestIdMiddleware = __decorate([
-    (0, common_1.Injectable)()
-], RequestIdMiddleware);
-//# sourceMappingURL=request-id.middleware.js.map
+exports.JobsModule = JobsModule;
+exports.JobsModule = JobsModule = __decorate([
+    (0, common_1.Module)({
+        imports: [fetch_module_1.FetchModule],
+        controllers: [jobs_controller_1.JobsController],
+        providers: [jobs_service_1.JobsService, prisma_service_1.PrismaService],
+        exports: [jobs_service_1.JobsService],
+    })
+], JobsModule);
+//# sourceMappingURL=jobs.module.js.map

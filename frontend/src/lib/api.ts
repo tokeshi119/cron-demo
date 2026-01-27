@@ -220,4 +220,61 @@ export const outboxApi = {
   },
 };
 
+// Jobs関連の型定義
+export interface FetchJob {
+  id: string;
+  sourceId: string;
+  source: {
+    id: string;
+    name: string;
+    url: string;
+  };
+  status: 'success' | 'failed';
+  error: string | null;
+  duration: number | null;
+  articleCount: number | null;
+  createdAt: string;
+}
+
+export interface GetJobsParams {
+  sourceId?: string;
+  status?: 'success' | 'failed';
+  page?: number;
+  limit?: number;
+}
+
+export interface JobsResponse {
+  jobs: FetchJob[];
+  pagination: Pagination;
+  statistics: {
+    totalJobs: number;
+    successCount: number;
+    failedCount: number;
+    averageDuration: number | null;
+  };
+}
+
+// Jobs API関数
+export const jobsApi = {
+  // ジョブ履歴一覧取得
+  getAll: async (params?: GetJobsParams): Promise<JobsResponse> => {
+    const response = await apiClient.get<JobsResponse>('/jobs', {
+      params,
+    });
+    return response.data;
+  },
+
+  // ジョブ詳細取得
+  getOne: async (id: string): Promise<FetchJob> => {
+    const response = await apiClient.get<FetchJob>(`/jobs/${id}`);
+    return response.data;
+  },
+
+  // 失敗ジョブのリトライ
+  retry: async (id: string): Promise<FetchResult> => {
+    const response = await apiClient.post<FetchResult>(`/jobs/${id}/retry`);
+    return response.data;
+  },
+};
+
 export default apiClient;

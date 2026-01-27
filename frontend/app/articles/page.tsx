@@ -90,20 +90,20 @@ export default function ArticlesPage() {
   const pagination = data?.pagination;
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">記事一覧</h1>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-0 mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold">記事一覧</h1>
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-blue-600 hover:text-blue-800 underline text-sm md:text-base"
           >
             ホーム
           </Link>
         </div>
 
         {/* フィルタ・検索・ソート */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 mb-6">
           <div className="space-y-4">
             {/* 検索 */}
             <div>
@@ -122,7 +122,7 @@ export default function ArticlesPage() {
                 />
                 <button
                   onClick={handleSearch}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full sm:w-auto"
                 >
                   検索
                 </button>
@@ -207,25 +207,25 @@ export default function ArticlesPage() {
           {articles.map((article) => (
             <div
               key={article.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6"
+              className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6"
             >
-              <h2 className="text-2xl font-bold mb-2">
+              <h2 className="text-lg md:text-2xl font-bold mb-2">
                 <a
                   href={article.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-blue-600 hover:text-blue-800 break-words"
                 >
                   {article.title}
                 </a>
               </h2>
               {article.description && (
-                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 mb-4 break-words">
                   {article.description}
                 </p>
               )}
-              <div className="flex justify-between items-center text-sm text-gray-500">
-                <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500">
+                <div className="flex flex-col md:flex-row md:gap-4 gap-1">
                   {article.source && (
                     <span>ソース: {article.source.name}</span>
                   )}

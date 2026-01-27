@@ -29,6 +29,10 @@ export default function SourcesPage() {
   const [fetchingSourceId, setFetchingSourceId] = useState<string | null>(
     null,
   );
+  const [selectedSourceForFetch, setSelectedSourceForFetch] = useState<string>(
+    '',
+  );
+  const [isBulkFetching, setIsBulkFetching] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +93,47 @@ export default function SourcesPage() {
     }
   };
 
+  const handleBulkFetch = async () => {
+    if (!selectedSourceForFetch) {
+      setNotification({
+        type: 'error',
+        message: 'ソースを選択してください',
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
+    const selectedSource = sources?.find(
+      (s) => s.id === selectedSourceForFetch,
+    );
+    if (!selectedSource) {
+      return;
+    }
+
+    setIsBulkFetching(true);
+    setNotification(null);
+    try {
+      const result = await fetchSource.mutateAsync(selectedSourceForFetch);
+      setNotification({
+        type: 'success',
+        message: `${selectedSource.name}: ${result.message} (${result.articleCount}件の記事を取得)`,
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'RSS取得に失敗しました';
+      setNotification({
+        type: 'error',
+        message: `${selectedSource.name}: ${errorMessage}`,
+      });
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setIsBulkFetching(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <main className="min-h-screen p-8">
@@ -117,20 +162,20 @@ export default function SourcesPage() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">ソース管理</h1>
-          <div className="space-x-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-0 mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold">ソース管理</h1>
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-4">
             <Link
               href="/"
-              className="text-blue-600 hover:text-blue-800 underline"
+              className="text-blue-600 hover:text-blue-800 underline text-sm md:text-base text-center sm:text-left"
             >
               ホーム
             </Link>
             <button
               onClick={() => setShowForm(!showForm)}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full sm:w-auto"
             >
               {showForm ? 'キャンセル' : '新規追加'}
             </button>
@@ -157,9 +202,52 @@ export default function SourcesPage() {
           </div>
         )}
 
+        {/* 一括取得セクション */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold mb-4">RSS取得</h2>
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            <div className="flex-1">
+              <label
+                htmlFor="source-select"
+                className="block text-sm font-medium mb-2"
+              >
+                ソースを選択して取得
+              </label>
+              <select
+                id="source-select"
+                value={selectedSourceForFetch}
+                onChange={(e) => setSelectedSourceForFetch(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                disabled={isBulkFetching}
+              >
+                <option value="">ソースを選択してください</option>
+                {sources
+                  ?.filter((s) => s.enabled)
+                  .map((source) => (
+                    <option key={source.id} value={source.id}>
+                      {source.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <button
+              onClick={handleBulkFetch}
+              disabled={!selectedSourceForFetch || isBulkFetching}
+              className="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
+            >
+              {isBulkFetching ? '取得中...' : '選択したソースを取得'}
+            </button>
+          </div>
+          <p className="mt-2 text-xs md:text-sm text-gray-500">
+            ※ Cronジョブは5分ごとに自動実行されます（検証用設定）
+          </p>
+        </div>
+
         {showForm && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">新しいソースを追加</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-4">
+              新しいソースを追加
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block mb-2">
@@ -207,7 +295,7 @@ export default function SourcesPage() {
               <button
                 type="submit"
                 disabled={createSource.isPending}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 w-full md:w-auto"
               >
                 {createSource.isPending ? '作成中...' : '作成'}
               </button>
@@ -220,19 +308,19 @@ export default function SourcesPage() {
             <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   名前
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   URL
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   状態
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   作成日時
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -240,10 +328,22 @@ export default function SourcesPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {sources?.map((source) => (
                 <tr key={source.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {source.name}
+                    <div className="sm:hidden text-xs text-gray-500 mt-1">
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 break-all"
+                      >
+                        {source.url.length > 40
+                          ? `${source.url.substring(0, 40)}...`
+                          : source.url}
+                      </a>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                     <a
                       href={source.url}
                       target="_blank"
@@ -253,7 +353,7 @@ export default function SourcesPage() {
                       {source.url}
                     </a>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() =>
                         handleToggleEnabled(source.id, source.enabled)
@@ -267,16 +367,16 @@ export default function SourcesPage() {
                       {source.enabled ? '有効' : '無効'}
                     </button>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                     {new Date(source.createdAt).toLocaleString('ja-JP')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1 md:space-x-2">
                     <button
                       onClick={() => handleFetch(source.id, source.name)}
                       disabled={
                         fetchingSourceId === source.id || !source.enabled
                       }
-                      className={`px-3 py-1 rounded text-sm font-medium ${
+                      className={`px-2 md:px-3 py-1 rounded text-xs md:text-sm font-medium ${
                         source.enabled
                           ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -288,7 +388,7 @@ export default function SourcesPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(source.id)}
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-900 text-xs md:text-sm"
                     >
                       削除
                     </button>

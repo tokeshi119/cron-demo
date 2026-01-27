@@ -8,6 +8,15 @@ export class RequestIdMiddleware implements NestMiddleware {
     const requestId = req.headers['x-request-id'] as string || uuidv4();
     req.headers['x-request-id'] = requestId;
     res.setHeader('X-Request-ID', requestId);
+    
+    // グローバルスコープにリクエストIDを設定（ロガーで使用）
+    (global as any).requestId = requestId;
+    
+    // リクエスト終了時にクリーンアップ
+    res.on('finish', () => {
+      delete (global as any).requestId;
+    });
+    
     next();
   }
 }

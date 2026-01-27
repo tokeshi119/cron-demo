@@ -7,6 +7,8 @@ import { HealthModule } from './health/health.module';
 import { SourcesModule } from './sources/sources.module';
 import { ArticlesModule } from './articles/articles.module';
 import { OutboxModule } from './outbox/outbox.module';
+import { CronModule } from './cron/cron.module';
+import { JobsModule } from './jobs/jobs.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import configuration from './config/configuration';
 
@@ -21,6 +23,8 @@ import configuration from './config/configuration';
     SourcesModule,
     ArticlesModule,
     OutboxModule,
+    CronModule,
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

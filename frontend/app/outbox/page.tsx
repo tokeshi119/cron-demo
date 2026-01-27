@@ -79,20 +79,20 @@ export default function OutboxPage() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Outboxタスク一覧</h1>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-0 mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold">Outboxタスク一覧</h1>
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-blue-600 hover:text-blue-800 underline text-sm md:text-base"
           >
             ホーム
           </Link>
         </div>
 
         {/* フィルタ */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6 mb-6">
           <div>
             <label htmlFor="status" className="block text-sm font-medium mb-2">
               ステータスでフィルタ
@@ -117,25 +117,25 @@ export default function OutboxPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   タイプ
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ステータス
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                   リトライ回数
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   作成日時
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   処理日時
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -143,13 +143,13 @@ export default function OutboxPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {tasks?.map((task) => (
                 <tr key={task.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm font-mono text-gray-500">
                     {task.id.substring(0, 8)}...
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-900">
                     {task.type}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
                         task.status,
@@ -157,19 +157,32 @@ export default function OutboxPage() {
                     >
                       {getStatusLabel(task.status)}
                     </span>
+                    <div className="sm:hidden text-xs text-gray-500 mt-1">
+                      リトライ: {task.retryCount}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-500 hidden sm:table-cell">
                     {task.retryCount}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(task.createdAt).toLocaleString('ja-JP')}
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-500 hidden md:table-cell">
+                    {new Date(task.createdAt).toLocaleString('ja-JP', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-500 hidden lg:table-cell">
                     {task.processedAt
-                      ? new Date(task.processedAt).toLocaleString('ja-JP')
+                      ? new Date(task.processedAt).toLocaleString('ja-JP', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                       : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm font-medium">
                     {task.status === 'failed' && task.retryCount < 3 && (
                       <button
                         onClick={() => handleRetry(task.id)}
@@ -184,7 +197,7 @@ export default function OutboxPage() {
                         <summary className="cursor-pointer hover:text-gray-700">
                           エラー詳細
                         </summary>
-                        <div className="mt-2 p-2 bg-red-50 rounded text-red-800">
+                        <div className="mt-2 p-2 bg-red-50 rounded text-red-800 break-words">
                           {task.error}
                         </div>
                       </details>
