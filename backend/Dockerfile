@@ -8,10 +8,10 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # 依存関係をインストール
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
-# Prismaクライアントを生成
-RUN npx prisma generate
+# Prismaクライアントを生成（package.jsonで指定されたバージョンを使用）
+RUN npm run prisma:generate
 
 # ソースコードをコピー
 COPY . .
@@ -32,14 +32,12 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # 本番用依存関係のみインストール
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --legacy-peer-deps --only=production && npm cache clean --force
 
-# Prismaクライアントを生成
-RUN npx prisma generate
-
-# ビルド済みアプリケーションをコピー
+# ビルド済みアプリケーションとPrismaクライアントをコピー
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # 非rootユーザーで実行
 RUN addgroup -g 1001 -S nodejs && \

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -13,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,7 +35,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: npm run start:dev
+    command: sh -c "npm install --legacy-peer-deps && npm run start:dev"
     networks:
       - app-network
 
@@ -55,12 +53,13 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    command: npm run start:worker
+    command: sh -c "npm install --legacy-peer-deps && npm run start:worker"
     networks:
       - app-network
 
 volumes:
   postgres_data:
+
 
 networks:
   app-network:
