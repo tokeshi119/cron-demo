@@ -49,4 +49,4 @@ USER nestjs
 EXPOSE 3000
 
 # デフォルトコマンド（docker-compose.ymlで上書き可能）
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
