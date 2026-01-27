@@ -6,6 +6,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { HealthModule } from './health/health.module';
 import { SourcesModule } from './sources/sources.module';
 import { ArticlesModule } from './articles/articles.module';
+import { OutboxModule } from './outbox/outbox.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import configuration from './config/configuration';
 
@@ -19,6 +20,7 @@ import configuration from './config/configuration';
     HealthModule,
     SourcesModule,
     ArticlesModule,
+    OutboxModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

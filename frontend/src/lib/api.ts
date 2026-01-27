@@ -16,6 +16,30 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // サーバーからのエラーレスポンス
       console.error('API Error:', error.response.status, error.response.data);
+      
+      // バックエンドから返される分かりやすいエラーメッセージを抽出
+      const errorData = error.response.data;
+      let errorMessage = 'リクエストに失敗しました';
+      
+      if (errorData?.error) {
+        // NestJSのHttpExceptionFilterから返される形式
+        errorMessage = errorData.error;
+      } else if (errorData?.message) {
+        // 一般的なエラーレスポンス形式
+        errorMessage = Array.isArray(errorData.message)
+          ? errorData.message.join(', ')
+          : errorData.message;
+      } else if (typeof errorData === 'string') {
+        errorMessage = errorData;
+      }
+      
+      // エラーメッセージを含むErrorオブジェクトを作成
+      const friendlyError = new Error(errorMessage);
+      // 元のエラー情報も保持（デバッグ用）
+      (friendlyError as any).status = error.response.status;
+      (friendlyError as any).originalError = error;
+      
+      return Promise.reject(friendlyError);
     } else if (error.request) {
       // リクエストは送信されたが、レスポンスが受信されなかった
       // これはバックエンドサーバーが起動していない、または接続できないことを示します
@@ -102,10 +126,36 @@ export const sourcesApi = {
   },
 };
 
+// 記事一覧取得用のクエリパラメータ
+export interface GetArticlesParams {
+  query?: string;
+  sourceId?: string;
+  sort?: 'createdAt' | 'publishedAt' | 'title';
+  order?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+// ページネーション情報
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+// 記事一覧レスポンス
+export interface ArticlesResponse {
+  articles: Article[];
+  pagination: Pagination;
+}
+
 export const articlesApi = {
-  // 記事一覧取得
-  getAll: async (): Promise<Article[]> => {
-    const response = await apiClient.get<Article[]>('/articles');
+  // 記事一覧取得（フィルタ、検索、ソート、ページネーション対応）
+  getAll: async (params?: GetArticlesParams): Promise<ArticlesResponse> => {
+    const response = await apiClient.get<ArticlesResponse>('/articles', {
+      params,
+    });
     return response.data;
   },
 };
@@ -125,6 +175,47 @@ export const fetchApi = {
     const response = await apiClient.post<FetchResult>(
       `/sources/${sourceId}/fetch`,
     );
+    return response.data;
+  },
+};
+
+// Outbox関連の型定義
+export interface OutboxTask {
+  id: string;
+  type: string;
+  payload: {
+    articleId?: string;
+    title?: string;
+    url?: string;
+    [key: string]: any;
+  };
+  status: 'pending' | 'processing' | 'done' | 'failed';
+  retryCount: number;
+  error: string | null;
+  processedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Outbox API関数
+export const outboxApi = {
+  // Outbox一覧取得
+  getAll: async (status?: string): Promise<OutboxTask[]> => {
+    const response = await apiClient.get<OutboxTask[]>('/outbox', {
+      params: status ? { status } : undefined,
+    });
+    return response.data;
+  },
+
+  // Outboxタスク取得
+  getOne: async (id: string): Promise<OutboxTask> => {
+    const response = await apiClient.get<OutboxTask>(`/outbox/${id}`);
+    return response.data;
+  },
+
+  // 失敗タスクのリトライ
+  retry: async (id: string): Promise<OutboxTask> => {
+    const response = await apiClient.post<OutboxTask>(`/outbox/${id}/retry`);
     return response.data;
   },
 };

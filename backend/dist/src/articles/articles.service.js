@@ -17,21 +17,56 @@ let ArticlesService = class ArticlesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findAll() {
-        return this.prisma.article.findMany({
-            include: {
-                source: {
-                    select: {
-                        id: true,
-                        name: true,
-                        url: true,
+    async findAll(query) {
+        const { query: searchQuery, sourceId, sort = 'createdAt', order = 'desc', page = 1, limit = 20, } = query;
+        const where = {};
+        if (sourceId) {
+            where.sourceId = sourceId;
+        }
+        if (searchQuery) {
+            where.OR = [
+                { title: { contains: searchQuery, mode: 'insensitive' } },
+                { url: { contains: searchQuery, mode: 'insensitive' } },
+            ];
+        }
+        let orderBy;
+        if (sort === 'publishedAt') {
+            orderBy = [
+                { publishedAt: order },
+                { createdAt: order },
+            ];
+        }
+        else {
+            orderBy = { [sort]: order };
+        }
+        const skip = (page - 1) * limit;
+        const [articles, total] = await Promise.all([
+            this.prisma.article.findMany({
+                where,
+                include: {
+                    source: {
+                        select: {
+                            id: true,
+                            name: true,
+                            url: true,
+                        },
                     },
                 },
+                orderBy,
+                skip,
+                take: limit,
+            }),
+            this.prisma.article.count({ where }),
+        ]);
+        return {
+            articles,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        };
     }
 };
 exports.ArticlesService = ArticlesService;

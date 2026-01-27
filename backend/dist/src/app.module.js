@@ -18,6 +18,7 @@ const prisma_service_1 = require("./prisma/prisma.service");
 const health_module_1 = require("./health/health.module");
 const sources_module_1 = require("./sources/sources.module");
 const articles_module_1 = require("./articles/articles.module");
+const outbox_module_1 = require("./outbox/outbox.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
 const configuration_1 = __importDefault(require("./config/configuration"));
 let AppModule = class AppModule {
@@ -37,6 +38,7 @@ exports.AppModule = AppModule = __decorate([
             health_module_1.HealthModule,
             sources_module_1.SourcesModule,
             articles_module_1.ArticlesModule,
+            outbox_module_1.OutboxModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, prisma_service_1.PrismaService],

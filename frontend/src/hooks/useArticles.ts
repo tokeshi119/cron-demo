@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { articlesApi, type Article } from '@/src/lib/api';
+import {
+  articlesApi,
+  type GetArticlesParams,
+} from '@/src/lib/api';
 
-export function useArticles() {
+export function useArticles(params?: GetArticlesParams) {
   return useQuery({
-    queryKey: ['articles'],
-    queryFn: articlesApi.getAll,
+    queryKey: ['articles', params],
+    queryFn: () => articlesApi.getAll(params),
   });
 }

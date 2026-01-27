@@ -102,7 +102,7 @@ export class FetchService {
             }
 
             // Upsert（urlをUNIQUE制約として使用）
-            await tx.article.upsert({
+            const article = await tx.article.upsert({
               where: { url: item.link },
               update: {
                 title,
@@ -119,11 +119,26 @@ export class FetchService {
               },
             });
 
+            // Outboxにタスクを投入（記事保存と同じトランザクション内）
+            await tx.outbox.create({
+              data: {
+                type: 'article_processing',
+                payload: {
+                  articleId: article.id,
+                  title: article.title,
+                  url: article.url,
+                },
+                status: 'pending',
+              },
+            });
+
             savedCount++;
           } catch (error) {
             // 個別の記事保存エラーはログに記録して続行
+            const itemErrorMessage =
+              error instanceof Error ? error.message : '不明なエラー';
             this.logger.warn(
-              `記事の保存に失敗: ${item.link} - ${error.message}`,
+              `記事の保存に失敗: ${item.link} - ${itemErrorMessage}`,
             );
           }
         }
@@ -132,13 +147,7 @@ export class FetchService {
       const duration = Date.now() - startTime;
 
       // ジョブ履歴を保存
-      await this.saveFetchJob(
-        sourceId,
-        'success',
-        null,
-        duration,
-        savedCount,
-      );
+      await this.saveFetchJob(sourceId, 'success', null, duration, savedCount);
 
       this.logger.log(
         `RSS取得完了: ${source.name} - ${savedCount}件の記事を保存（${duration}ms）`,
@@ -157,31 +166,80 @@ export class FetchService {
 
       // エラーの種類に応じたメッセージ
       let detailedMessage = errorMessage;
+      // ユーザー向けは中立・簡潔に（詳細はログ/DBにのみ残す）
+      let userFriendlyMessage =
+        'RSS取得に失敗しました。時間をおいて再度お試しください。';
+
       if (errorMessage.includes('timeout')) {
         detailedMessage = 'RSS取得がタイムアウトしました';
-      } else if (errorMessage.includes('ENOTFOUND') || errorMessage.includes('ECONNREFUSED')) {
+        userFriendlyMessage =
+          'RSSフィードの取得がタイムアウトしました。時間をおいて再度お試しください。';
+      } else if (
+        errorMessage.includes('ENOTFOUND') ||
+        errorMessage.includes('ECONNREFUSED')
+      ) {
         detailedMessage = 'RSSフィードに接続できませんでした';
-      } else if (errorMessage.includes('Invalid XML')) {
-        detailedMessage = '無効なRSSフィード形式です';
+        userFriendlyMessage =
+          'RSSフィードに接続できませんでした。URLが正しいか確認して再度お試しください。';
+      } else if (
+        errorMessage.includes('Invalid XML') ||
+        errorMessage.includes('Invalid character')
+      ) {
+        // XMLパースエラーの詳細を抽出
+        const lineMatch = errorMessage.match(/Line:\s*(\d+)/);
+        const columnMatch = errorMessage.match(/Column:\s*(\d+)/);
+        const charMatch = errorMessage.match(/Char:\s*([^\n]+)/);
+
+        let xmlErrorDetails = '';
+        if (lineMatch && columnMatch) {
+          xmlErrorDetails = `（XMLの${lineMatch[1]}行目、${columnMatch[1]}文字目付近）`;
+        }
+        if (charMatch?.[1]) {
+          const charInfo = truncateString(String(charMatch[1]).trim(), 80);
+          xmlErrorDetails = xmlErrorDetails
+            ? `${xmlErrorDetails}（問題の文字: ${charInfo}）`
+            : `（問題の文字: ${charInfo}）`;
+        }
+
+        detailedMessage = `RSSフィードのXML形式が不正です${xmlErrorDetails}`;
+        userFriendlyMessage =
+          'RSSフィードの形式に問題があるため取得できませんでした。別のRSSフィードURLを試すか、時間をおいて再度お試しください。';
+      } else if (
+        errorMessage.includes('status code 400') ||
+        errorMessage.includes('Status code 400') ||
+        errorMessage.includes(' 400')
+      ) {
+        // 取得先が400を返すケース（bot対策・一時障害・URL誤りなど）
+        detailedMessage = 'RSSフィード提供元が400(Bad Request)を返しました';
+        userFriendlyMessage =
+          'RSSフィード提供元がリクエストを受け付けませんでした。URLを確認し、時間をおいて再度お試しください。';
+      } else if (errorMessage.includes('404')) {
+        detailedMessage = 'RSSフィードが見つかりませんでした';
+        userFriendlyMessage =
+          'RSSフィードが見つかりませんでした。URLを確認してください。';
+      } else if (errorMessage.includes('403') || errorMessage.includes('401')) {
+        detailedMessage = 'RSSフィードへのアクセスが拒否されました';
+        userFriendlyMessage =
+          'RSSフィードへのアクセスが拒否されました。時間をおいて再度お試しください。';
+      } else if (
+        errorMessage.includes('500') ||
+        errorMessage.includes('502') ||
+        errorMessage.includes('503')
+      ) {
+        detailedMessage = 'RSSフィードサーバーでエラーが発生しました';
+        userFriendlyMessage =
+          'RSSフィード提供元でエラーが発生しました。時間をおいて再度お試しください。';
       }
 
       // ジョブ履歴を保存（失敗）
-      await this.saveFetchJob(
-        sourceId,
-        'failed',
-        detailedMessage,
-        duration,
-        0,
-      );
+      await this.saveFetchJob(sourceId, 'failed', detailedMessage, duration, 0);
 
       this.logger.error(
         `RSS取得失敗: ${source.name} - ${detailedMessage}`,
         error instanceof Error ? error.stack : undefined,
       );
 
-      throw new BadRequestException(
-        `RSS取得に失敗しました: ${detailedMessage}`,
-      );
+      throw new BadRequestException(userFriendlyMessage);
     }
   }
 

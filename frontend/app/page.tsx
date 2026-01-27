@@ -18,6 +18,12 @@ export default function Home() {
           >
             記事一覧
           </Link>
+          <Link
+            href="/outbox"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            Outboxタスク
+          </Link>
         </nav>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <p className="text-gray-700 dark:text-gray-300">
