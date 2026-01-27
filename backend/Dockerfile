@@ -48,5 +48,13 @@ USER nestjs
 
 EXPOSE 3000
 
+# 起動スクリプトを作成
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "🔄 Prismaマイグレーションを実行中..."' >> /app/start.sh && \
+    echo 'npx prisma migrate deploy || echo "⚠️ マイグレーションエラー（続行）"' >> /app/start.sh && \
+    echo 'echo "🚀 アプリケーションを起動中..."' >> /app/start.sh && \
+    echo 'exec node dist/src/main' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
 # デフォルトコマンド（docker-compose.ymlで上書き可能）
-CMD ["node", "dist/src/main"]
+CMD ["/app/start.sh"]
