@@ -2,6 +2,7 @@
 name: Phase 1にDockerfile作成を追加
 overview: 計画ファイルのPhase 1「Docker Compose セットアップ」セクションに、backend/Dockerfileの作成項目を追加します。
 todos: []
+isProject: false
 ---
 
 # Phase 1にDockerfile作成を追加
@@ -15,10 +16,10 @@ todos: []
 **Phase 1: 基盤構築と動作確認** の「1. Docker Compose セットアップ」セクションに以下を追加：
 
 - `backend/Dockerfile` の作成（NestJSアプリケーション用）
-                - マルチステージビルド（ビルドステージ + 実行ステージ）
-                - Node.js 18以上を使用
-                - Prismaクライアント生成を含む
-                - 開発環境用のホットリロード対応（volumes設定）
+                                - マルチステージビルド（ビルドステージ + 実行ステージ）
+                                - Node.js 18以上を使用
+                                - Prismaクライアント生成を含む
+                                - 開発環境用のホットリロード対応（volumes設定）
 
 ### 追加する内容
 

@@ -12,6 +12,7 @@ import configuration from './config/configuration';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../.env'], // プロジェクトルートの.envを読み込む
       load: [configuration],
     }),
     HealthModule,
