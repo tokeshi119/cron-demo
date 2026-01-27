@@ -90,6 +90,11 @@ graph TB
 1. **Docker Compose セットアップ**
 
    - 3コンテナ構成: `app` (NestJS API), `worker` (NestJS Worker), `postgres` (PostgreSQL)
+   - `backend/Dockerfile` の作成（NestJSアプリケーション用）
+     - マルチステージビルド（ビルドステージ + 実行ステージ）
+     - Node.js 18以上を使用
+     - Prismaクライアント生成を含む
+     - 開発環境用のホットリロード対応（volumes設定）
    - ネットワーク設定
    - 環境変数管理（`.env.example`）
    - ボリューム設定（DB永続化）
@@ -326,6 +331,8 @@ graph TB
 ## ファイル構造（想定）
 
 ```
+
+
 cron-larning/
 ├── backend/
 │   ├── src/
