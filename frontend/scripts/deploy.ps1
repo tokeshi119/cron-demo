@@ -1,9 +1,5 @@
-﻿# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
+# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
 # 使用方法: .\scripts\deploy.ps1
-
-# UTF-8エンコーディングを設定
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$OutputEncoding = [System.Text.Encoding]::UTF8
 
 param(
     [string]$ApiUrl = "",
@@ -11,6 +7,10 @@ param(
     [string]$CloudFrontDistributionId = "",
     [string]$AwsRegion = "ap-northeast-1"
 )
+
+# UTF-8エンコーディングを設定（paramの後に置く必要があります）
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
 # エラー時に停止
 $ErrorActionPreference = "Stop"
