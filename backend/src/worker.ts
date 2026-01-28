@@ -2,8 +2,24 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { OutboxWorker } from './outbox/outbox.worker';
 import { JsonLogger } from './common/logger.service';
+import { execSync } from 'child_process';
 
 async function bootstrap() {
+  // 本番環境でマイグレーションを自動実行
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      console.log('🔄 Prismaマイグレーションを実行中...');
+      execSync('npx prisma migrate deploy', {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      });
+      console.log('✅ マイグレーションが完了しました');
+    } catch (error) {
+      console.error('❌ マイグレーションエラー:', error);
+      // エラーが発生してもワーカーは起動を続ける
+    }
+  }
+
   const app = await NestFactory.createApplicationContext(AppModule, {
     logger: new JsonLogger(),
   });
