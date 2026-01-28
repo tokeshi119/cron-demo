@@ -234,7 +234,7 @@ railway run npx prisma migrate deploy
 
    - 「Settings」→「Deploy」→「Start Command」に以下を設定:
    ```
-   node dist/worker.js
+   node dist/src/worker.js
    ```
 
    - または、`railway.json`をサービスごとに設定（要確認）

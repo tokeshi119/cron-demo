@@ -71,7 +71,7 @@ railway run --service cron-larning-api npx prisma migrate deploy
    ```
 5. 「Settings」→「Deploy」→「Start Command」に以下を設定:
    ```
-   node dist/worker.js
+   node dist/src/worker.js
    ```
 6. デプロイ開始
 
