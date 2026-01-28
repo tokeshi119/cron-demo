@@ -1,7 +1,11 @@
 ---
 name: RSS記事取得システム構築計画
 overview: NestJS + Prisma + PostgreSQL のバックエンドと Next.js のフロントエンドで、RSSフィードから技術記事を定期取得・保存し、非同期処理を行うシステムを段階的に構築します。各ステップで動作確認できるよう、検証しやすい粒度で分割します。
-todos: []
+todos:
+  - id: todo-1769585273940-68cg9hzx1
+    content: ""
+    status: pending
+isProject: false
 ---
 
 # RSS記事取得システム構築計画
