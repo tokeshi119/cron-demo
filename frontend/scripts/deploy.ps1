@@ -1,10 +1,10 @@
-# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
+﻿# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
 # 使用方法: .\scripts\deploy.ps1
 
 param(
-    [string]$ApiUrl = "",
-    [string]$S3BucketName = "",
-    [string]$CloudFrontDistributionId = "",
+    [string]$ApiUrl,
+    [string]$S3BucketName,
+    [string]$CloudFrontDistributionId,
     [string]$AwsRegion = "ap-northeast-1"
 )
 
@@ -138,8 +138,8 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Green
-Write-Host "デプロイ完了！" -ForegroundColor Green
+Write-Host "Deploy completed!" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "CloudFrontのキャッシュ無効化には数分かかる場合があります" -ForegroundColor Yellow
-Write-Host "CloudFrontのURLでアクセスして確認してください" -ForegroundColor Yellow
+Write-Host "CloudFront cache invalidation may take a few minutes" -ForegroundColor Yellow
+Write-Host "Please access CloudFront URL to verify" -ForegroundColor Yellow
