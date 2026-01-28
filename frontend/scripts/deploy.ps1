@@ -1,4 +1,4 @@
-# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
+﻿# フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
 # 使用方法: .\scripts\deploy.ps1
 
 # UTF-8エンコーディングを設定
