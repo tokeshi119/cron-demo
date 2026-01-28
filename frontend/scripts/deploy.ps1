@@ -1,6 +1,10 @@
 # フロントエンドをS3 + CloudFrontに手動デプロイするスクリプト
 # 使用方法: .\scripts\deploy.ps1
 
+# UTF-8エンコーディングを設定
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 param(
     [string]$ApiUrl = "",
     [string]$S3BucketName = "",
