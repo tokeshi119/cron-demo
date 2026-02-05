@@ -14,10 +14,10 @@ export class CronService {
   ) {}
 
   /**
-   * 有効なソースを1時間ごとに取得
-   * 本番環境用: リソース消費を抑えるため1時間間隔に設定
+   * 有効なソースを12時間ごとに取得
+   * 本番環境用: リソース消費を抑えるため12時間間隔に設定
    */
-  @Cron(CronExpression.EVERY_HOUR) // 1時間ごと
+  @Cron(CronExpression.EVERY_12_HOURS) // 12時間ごと
   async handleCron() {
     this.logger.log('Cronジョブ開始: 有効なソースのRSS取得');
 

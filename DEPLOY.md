@@ -95,7 +95,7 @@ railway run --service cron-larning-api npx prisma migrate deploy
 1. **API**: `https://your-api-url.up.railway.app/healthz`
 2. **Swagger UI**: `https://your-api-url.up.railway.app/api`
 3. **フロントエンド**: VercelのURL
-4. **Cronジョブ**: Railwayのログで5分ごとの実行を確認
+4. **Cronジョブ**: Railwayのログで12時間ごとの実行を確認
 
 ## トラブルシューティング
 

@@ -187,15 +187,15 @@ Invoke-RestMethod -Uri "https://<API_PUBLIC_DOMAIN>/sources" `
 
 ---
 
-## 10. Cron 実行間隔（5分→1時間）でリソース消費を抑える
+## 10. Cron 実行間隔（12時間）でリソース消費を抑える
 
 ### 目的
-- 5分ごと実行（1日288回）だと、無料枠/リソース消費が気になりやすい
+- 12時間ごと（1日2回）にして、無料枠/リソース消費を抑える
 
 ### 対処
-- `backend/src/cron/cron.service.ts` の `@Cron(...)` を 1時間間隔へ
+- `backend/src/cron/cron.service.ts` の `@Cron(...)` を 12時間間隔へ
 
-（例：`CronExpression.EVERY_HOUR`）
+（例：`CronExpression.EVERY_12_HOURS`）
 
 ---
 

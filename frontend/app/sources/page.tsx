@@ -239,7 +239,7 @@ export default function SourcesPage() {
             </button>
           </div>
           <p className="mt-2 text-xs md:text-sm text-gray-500">
-            ※ Cronジョブは5分ごとに自動実行されます（検証用設定）
+            ※ Cronジョブは12時間ごとに自動実行されます（現在の設定）
           </p>
         </div>
 
